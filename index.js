@@ -7,7 +7,7 @@ const app = express();
 
 // middleware
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: "true",
   optionSuccessStatus: 200,
 };
@@ -33,6 +33,10 @@ async function run() {
       .db("fix-gadget-DB")
       .collection("services");
 
+    const bookingsCollection = client
+      .db("fix-gadget-DB")
+      .collection("bookings");
+
     //get all data form db
 
     app.get("/services", async (req, res) => {
@@ -54,6 +58,26 @@ async function run() {
       console.log("Added New Service", service);
 
       const result = await servicesCollection.insertOne(service);
+      res.send(result);
+    });
+
+    app.delete("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await servicesCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // book service related
+
+    app.get("/bookings", async (req, res) => {
+      const result = await bookingsCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
       res.send(result);
     });
 
