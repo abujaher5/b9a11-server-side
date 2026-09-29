@@ -7,7 +7,7 @@ const app = express();
 
 // middleware
 const corsOptions = {
-  origin: ["https://gadget-repair-20009.web.app"],
+  origin: ["https://gadget-repair-20009.web.app", "http://localhost:5173"],
   credentials: "true",
   optionSuccessStatus: 200,
 };
