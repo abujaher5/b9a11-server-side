@@ -117,13 +117,30 @@ async function run() {
     // book service related
 
     app.get("/bookings", async (req, res) => {
-      const result = await bookingsCollection.find().toArray();
+      const { email, providerEmail } = req.query;
+      const query = {};
+      if (email) query.userEmail = email;
+      if (providerEmail) query.providerEmail = providerEmail;
+      const result = await bookingsCollection.find(query).toArray();
       res.send(result);
     });
 
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // update booking status (service provider)
+    app.put("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          serviceStatus: req.body.serviceStatus,
+        },
+      };
+      const result = await bookingsCollection.updateOne(query, updateDoc);
       res.send(result);
     });
 
