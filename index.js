@@ -37,6 +37,47 @@ async function run() {
       .db("fix-gadget-DB")
       .collection("bookings");
 
+    const usersCollection = client.db("fix-gadget-DB").collection("users");
+
+    // users / roles related
+
+    // create-on-register, update name on later logins (role only set on insert)
+    app.post("/users", async (req, res) => {
+      const { name, email, role } = req.body;
+      if (!email) {
+        return res.status(400).send({ message: "Email is required" });
+      }
+      const updateDoc = {
+        $set: { name: name || "", email },
+        $setOnInsert: {
+          role: role || "consumer",
+          createdAt: new Date(),
+        },
+      };
+      const result = await usersCollection.updateOne({ email }, updateDoc, {
+        upsert: true,
+      });
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await usersCollection.findOne({ email });
+      res.send(result);
+    });
+
+    app.patch("/users/:email/role", async (req, res) => {
+      const email = req.params.email;
+      const updateDoc = { $set: { role: req.body.role } };
+      const result = await usersCollection.updateOne({ email }, updateDoc);
+      res.send(result);
+    });
+
     //get all data form db
 
     app.get("/services", async (req, res) => {
@@ -102,7 +143,7 @@ async function run() {
       const result = await servicesCollection.updateOne(
         query,
         updateDoc,
-        options
+        options,
       );
       res.send(result);
     });
@@ -147,7 +188,7 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
+      "Pinged your deployment. You successfully connected to MongoDB!",
     );
   } finally {
     // Ensures that the client will close when you finish/error
