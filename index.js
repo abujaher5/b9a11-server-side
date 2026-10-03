@@ -100,34 +100,6 @@ async function run() {
       const result = await servicesCollection.insertOne(service);
       res.send(result);
     });
-    app.put("/addTouristSpot/:id", async (req, res) => {
-      console.log(req.params.id);
-
-      const id = req.params.id;
-
-      const query = { _id: new ObjectId(id) };
-
-      console.log(query);
-      const data = {
-        $set: {
-          spot_name: req.body.spot_name,
-          country_name: req.body.country_name,
-          location: req.body.location,
-          short_description: req.body.short_description,
-          average_cost: req.body.average_cost,
-          seasonality: req.body.seasonality,
-          travel_time: req.body.travel_time,
-          totalVisitors: req.body.totalVisitors,
-          user_email: req.body.user_email,
-          user_name: req.body.user_name,
-          image: req.body.image,
-        },
-      };
-      console.log(data);
-      const result = await spotCollection.updateOne(query, data);
-      console.log(result);
-      res.send(result);
-    });
 
     app.put("/services/:id", async (req, res) => {
       const id = req.params.id;
@@ -137,7 +109,14 @@ async function run() {
       const updateDoc = {
         $set: {
           serviceName: req.body.serviceName,
+          category: req.body.category,
+          brand: req.body.brand,
           price: req.body.price,
+          estimatedTime: req.body.estimatedTime,
+          warranty: req.body.warranty,
+          area: req.body.area,
+          description: req.body.description,
+          serviceImage: req.body.serviceImage,
         },
       };
       const result = await servicesCollection.updateOne(
